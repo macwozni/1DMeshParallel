@@ -13,6 +13,13 @@ Build with Maven:
 
     mvn clean package
 
+Generate Javadoc with Maven:
+
+    mvn javadoc:javadoc
+
+Maven writes it to target/reports/apidocs. The package phase also attaches a
+Javadoc JAR.
+
 Run the Maven-built JAR:
 
     java -jar target/1DMeshParallel-1.0-SNAPSHOT.jar
@@ -20,6 +27,13 @@ Run the Maven-built JAR:
 Build with Gradle:
 
     ./gradlew clean build
+
+Generate Javadoc with Gradle:
+
+    ./gradlew javadoc
+
+Gradle writes it to build/docs/javadoc. The build task also creates a Javadoc
+JAR.
 
 Run with Gradle:
 

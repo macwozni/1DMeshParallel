@@ -12,14 +12,31 @@ import pl.edu.agh.macwozni.dmeshparallel.myProductions.P6;
 import pl.edu.agh.macwozni.dmeshparallel.parallelism.BlockRunner;
 import pl.edu.agh.macwozni.dmeshparallel.production.PDrawer;
 
+/**
+ * Executes the fixed sequence of graph productions used in the trace theory
+ * exercise.
+ *
+ * <p>The sequence starts from the axiom {@code S}, creates a pair of
+ * {@code T1} vertices, inserts two {@code T2} vertices, and then labels the
+ * resulting four vertices as finite elements.</p>
+ */
 public final class Executor implements Runnable {
 
     private final BlockRunner runner;
 
+    /**
+     * Creates an executor that delegates each block of independent productions
+     * to the supplied runner.
+     *
+     * @param runner strategy used to run each production block
+     */
     public Executor(BlockRunner runner) {
         this.runner = Objects.requireNonNull(runner, "runner");
     }
 
+    /**
+     * Runs all production blocks and prints the graph after each production.
+     */
     @Override
     public void run() {
         PDrawer<Vertex> drawer = new GraphDrawer();

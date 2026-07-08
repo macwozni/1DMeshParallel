@@ -8,8 +8,23 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import pl.edu.agh.macwozni.dmeshparallel.production.IProduction;
 
+/**
+ * Runs each production in a block on its own virtual thread.
+ *
+ * <p>A latch is used so all tasks wait until the whole block has been submitted
+ * before any production starts executing.</p>
+ */
 public class ConcurrentBlockRunner extends AbstractBlockRunner {
 
+    /**
+     * Creates a runner that executes productions on virtual threads.
+     */
+    public ConcurrentBlockRunner() {
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void runNonEmptyBlock(List<IProduction<?>> productions) {
         var startGate = new CountDownLatch(1);

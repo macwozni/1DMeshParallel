@@ -9,6 +9,7 @@ java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(26)
     }
+    withJavadocJar()
 }
 
 application {
@@ -18,6 +19,11 @@ application {
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
     options.release = 26
+}
+
+tasks.withType(Javadoc).configureEach {
+    options.encoding = 'UTF-8'
+    options.addBooleanOption('Xdoclint:all', true)
 }
 
 tasks.named('jar') {
