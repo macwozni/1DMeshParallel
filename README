@@ -7,14 +7,26 @@ all productions in that block finish, and only then the next block starts.
 Requirements:
 
 * JDK 26
-* Maven 3.9 or newer
+* Maven 3.9 or newer, or the included Gradle Wrapper
 
-Build:
+Build with Maven:
 
     mvn clean package
 
-Run:
+Run the Maven-built JAR:
 
     java -jar target/1DMeshParallel-1.0-SNAPSHOT.jar
+
+Build with Gradle:
+
+    ./gradlew clean build
+
+Run with Gradle:
+
+    ./gradlew run
+
+Run the Gradle-built JAR:
+
+    java -jar build/libs/1DMeshParallel-1.0-SNAPSHOT.jar
 
 For noncommercial use only.
