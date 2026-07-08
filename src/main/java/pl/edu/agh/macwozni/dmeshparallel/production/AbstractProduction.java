@@ -1,48 +1,26 @@
 package pl.edu.agh.macwozni.dmeshparallel.production;
 
-import pl.edu.agh.macwozni.dmeshparallel.parallelism.MyLock;
+import java.util.Objects;
 
 public abstract class AbstractProduction<P> implements IProduction<P> {
 
-    private MyLock lock;
-    private final PThread thread = new PThread();
-    private final P obj;
-    private P result;
-    private final PDrawer<P> drawer;
+    private final P object;
+    private final PDrawer<? super P> drawer;
+    private volatile P result;
 
-    public AbstractProduction(P _obj, PDrawer<P> _drawer) {
-        this.obj = _obj;
-        this.drawer = _drawer;
+    protected AbstractProduction(P object, PDrawer<? super P> drawer) {
+        this.object = Objects.requireNonNull(object, "object");
+        this.drawer = Objects.requireNonNull(drawer, "drawer");
     }
 
     @Override
-    public P getObj() {
-        return this.result;
-    }
-
-//run the thread
-    @Override
-    public void start() {
-        thread.start();
+    public final void run() {
+        result = apply(object);
+        drawer.draw(result);
     }
 
     @Override
-    public void join() throws InterruptedException {
-        thread.join();
-    }
-
-    @Override
-    public void injectRefs(MyLock _lock) {
-        this.lock = _lock;
-    }
-
-    private class PThread extends Thread {
-
-        @Override
-        public void run() {
-            lock.lock();
-            result = apply(obj);
-            drawer.draw(result);
-        }
+    public final P getObj() {
+        return result;
     }
 }

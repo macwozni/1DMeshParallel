@@ -1,6 +1,20 @@
-This is a JAVA Maven project.
+This is a Java Maven project.
 
-It is intended to be used by students on their classes for Trace Theory.
-This is a simple implementation of runner, thats starts a group of threads at the same time, than waits for them to finish. Next it goes to another group of threads.
+It is intended to be used by students in Trace Theory classes. It shows how
+groups of graph productions can be executed block by block: a block starts,
+all productions in that block finish, and only then the next block starts.
 
-For noncomercial use only.
+Requirements:
+
+* JDK 26
+* Maven 3.9 or newer
+
+Build:
+
+    mvn clean package
+
+Run:
+
+    java -jar target/1DMeshParallel-1.0-SNAPSHOT.jar
+
+For noncommercial use only.

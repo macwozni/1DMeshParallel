@@ -1,62 +1,44 @@
 package pl.edu.agh.macwozni.dmeshparallel;
 
-import pl.edu.agh.macwozni.dmeshparallel.myProductions.P2;
-import pl.edu.agh.macwozni.dmeshparallel.myProductions.P6;
-import pl.edu.agh.macwozni.dmeshparallel.myProductions.P1;
-import pl.edu.agh.macwozni.dmeshparallel.myProductions.P5;
-import pl.edu.agh.macwozni.dmeshparallel.myProductions.P3;
-import pl.edu.agh.macwozni.dmeshparallel.mesh.Vertex;
+import java.util.List;
+import java.util.Objects;
 import pl.edu.agh.macwozni.dmeshparallel.mesh.GraphDrawer;
+import pl.edu.agh.macwozni.dmeshparallel.mesh.Vertex;
+import pl.edu.agh.macwozni.dmeshparallel.myProductions.P1;
+import pl.edu.agh.macwozni.dmeshparallel.myProductions.P2;
+import pl.edu.agh.macwozni.dmeshparallel.myProductions.P3;
+import pl.edu.agh.macwozni.dmeshparallel.myProductions.P5;
+import pl.edu.agh.macwozni.dmeshparallel.myProductions.P6;
 import pl.edu.agh.macwozni.dmeshparallel.parallelism.BlockRunner;
 import pl.edu.agh.macwozni.dmeshparallel.production.PDrawer;
 
-public class Executor extends Thread {
-    
+public final class Executor implements Runnable {
+
     private final BlockRunner runner;
-    
-    public Executor(BlockRunner _runner){
-        this.runner = _runner;
+
+    public Executor(BlockRunner runner) {
+        this.runner = Objects.requireNonNull(runner, "runner");
     }
 
     @Override
     public void run() {
+        PDrawer<Vertex> drawer = new GraphDrawer();
+        var axiom = new Vertex(null, null, "S");
 
-        PDrawer drawer = new GraphDrawer();
-        //axiom
-        Vertex s = new Vertex(null, null, "S");
+        var p1 = new P1(axiom, drawer);
+        runner.runBlock(List.of(p1));
 
-        //p1 
-        P1 p1 = new P1(s, drawer);
-        this.runner.addThread(p1);
+        var p2 = new P2(p1.getObj(), drawer);
+        var p3 = new P3(p1.getObj().getRight(), drawer);
+        runner.runBlock(List.of(p2, p3));
 
-        //start threads
-        this.runner.startAll();
+        var p5A = new P5(p2.getObj(), drawer);
+        var p5B = new P5(p3.getObj().getRight(), drawer);
+        var p6A = new P6(p2.getObj().getRight(), drawer);
+        var p6B = new P6(p3.getObj(), drawer);
+        runner.runBlock(List.of(p5A, p5B, p6A, p6B));
 
-        //p2,p3
-        P2 p2 = new P2(p1.getObj(), drawer);
-        P3 p3 = new P3(p1.getObj().getRight(), drawer);
-        this.runner.addThread(p2);
-        this.runner.addThread(p3);
-
-        //start threads
-        this.runner.startAll();
-
-        //p5^2,p6^2
-        P5 p5A = new P5(p2.getObj(), drawer);
-        P5 p5B = new P5(p3.getObj().getRight(), drawer);
-        P6 p6A = new P6(p2.getObj().getRight(), drawer);
-        P6 p6B = new P6(p3.getObj(), drawer);
-        this.runner.addThread(p5A);
-        this.runner.addThread(p5B);
-        this.runner.addThread(p6A);
-        this.runner.addThread(p6B);
-
-        //start threads
-        this.runner.startAll();
-
-        //done
         System.out.println("done");
         drawer.draw(p6B.getObj());
-
     }
 }

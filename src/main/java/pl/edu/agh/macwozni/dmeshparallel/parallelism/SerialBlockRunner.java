@@ -1,21 +1,12 @@
 package pl.edu.agh.macwozni.dmeshparallel.parallelism;
 
+import java.util.List;
 import pl.edu.agh.macwozni.dmeshparallel.production.IProduction;
 
-public class SerialBlockRunner extends AbstractBlockRunner {
-
-    private final MyLock lock = new MyLock();
+public final class SerialBlockRunner extends AbstractBlockRunner {
 
     @Override
-    void runOne(IProduction _pOne) {
-        _pOne.injectRefs(lock);
-        _pOne.start();
-        lock.unlock();
+    protected void runNonEmptyBlock(List<IProduction<?>> productions) {
+        productions.forEach(IProduction::run);
     }
-
-    @Override
-    void wakeAll() {
-        //do nothing
-    }
-
 }

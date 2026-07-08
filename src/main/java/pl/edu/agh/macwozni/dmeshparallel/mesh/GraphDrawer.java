@@ -1,20 +1,28 @@
 package pl.edu.agh.macwozni.dmeshparallel.mesh;
 
+import java.util.Objects;
+import java.util.StringJoiner;
 import pl.edu.agh.macwozni.dmeshparallel.production.PDrawer;
 
-public class GraphDrawer implements PDrawer<Vertex> {
+public final class GraphDrawer implements PDrawer<Vertex> {
 
     @Override
-    public void draw(Vertex v) {
-        //go left
-        while (v.mLeft != null) {
-            v = v.mLeft;
+    public void draw(Vertex vertex) {
+        Objects.requireNonNull(vertex, "vertex");
+        System.out.println(Vertex.withGraphLock(() -> toLine(vertex)));
+    }
+
+    private static String toLine(Vertex vertex) {
+        var current = vertex;
+        while (current.getLeft() != null) {
+            current = current.getLeft();
         }
-        //plot
-        while (v.mRight != null) {
-            System.out.print(v.mLabel + "--");
-            v = v.mRight;
+
+        var labels = new StringJoiner("--");
+        while (current != null) {
+            labels.add(current.getLabel());
+            current = current.getRight();
         }
-        System.out.println(v.mLabel);
+        return labels.toString();
     }
 }

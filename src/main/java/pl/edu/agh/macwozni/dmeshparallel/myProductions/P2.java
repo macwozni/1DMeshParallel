@@ -6,16 +6,19 @@ import pl.edu.agh.macwozni.dmeshparallel.production.PDrawer;
 
 public class P2 extends AbstractProduction<Vertex> {
 
-    public P2(Vertex _obj, PDrawer<Vertex> _drawer) {
-        super(_obj, _drawer);
+    public P2(Vertex object, PDrawer<? super Vertex> drawer) {
+        super(object, drawer);
     }
 
     @Override
     public Vertex apply(Vertex t1) {
         System.out.println("p2");
-        Vertex t2 = new Vertex(t1, t1.getRight(), "T2");
-        t1.getRight().setLeft(t2);
-        t1.setRight(t2);
-        return t1;
+        return Vertex.withGraphLock(() -> {
+            var right = t1.getRight();
+            var t2 = new Vertex(t1, right, "T2");
+            right.setLeft(t2);
+            t1.setRight(t2);
+            return t1;
+        });
     }
 }

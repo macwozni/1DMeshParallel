@@ -1,12 +1,13 @@
 package pl.edu.agh.macwozni.dmeshparallel;
 
-import pl.edu.agh.macwozni.dmeshparallel.parallelism.ConcurentBlockRunner;
+import pl.edu.agh.macwozni.dmeshparallel.parallelism.ConcurrentBlockRunner;
 
-class Application {
+public final class Application {
 
-    public static void main(String args[]) {
+    private Application() {
+    }
 
-        Executor e = new Executor(new ConcurentBlockRunner());
-        e.start();
+    public static void main(String[] args) {
+        new Executor(new ConcurrentBlockRunner()).run();
     }
 }

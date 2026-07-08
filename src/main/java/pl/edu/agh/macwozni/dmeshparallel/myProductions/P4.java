@@ -6,15 +6,21 @@ import pl.edu.agh.macwozni.dmeshparallel.production.PDrawer;
 
 public class P4 extends AbstractProduction<Vertex> {
 
-    public P4(Vertex _obj, PDrawer<Vertex> _drawer) {
-        super(_obj, _drawer);
+    public P4(Vertex object, PDrawer<? super Vertex> drawer) {
+        super(object, drawer);
     }
 
     @Override
     public Vertex apply(Vertex t2) {
         System.out.println("p4");
-        Vertex t2Prim = new Vertex(t2, t2.getRight(), "T2");
-        t2.setRight(t2Prim);
-        return t2;
+        return Vertex.withGraphLock(() -> {
+            var right = t2.getRight();
+            var t2Prim = new Vertex(t2, right, "T2");
+            if (right != null) {
+                right.setLeft(t2Prim);
+            }
+            t2.setRight(t2Prim);
+            return t2;
+        });
     }
 }

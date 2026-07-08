@@ -1,7 +1,7 @@
 package pl.edu.agh.macwozni.dmeshparallel.production;
 
+@FunctionalInterface
 public interface PDrawer<P> {
 
-    public void draw(P p);
-
+    void draw(P value);
 }
