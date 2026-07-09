@@ -8,13 +8,18 @@ mogą wykonać się równolegle, ale następny blok startuje dopiero wtedy, gdy
 wszystkie produkcje z poprzedniego bloku zakończą pracę.
 
 Przykład buduje jednowymiarową siatkę reprezentowaną jako mutowalny graf
-dwukierunkowy. Domyślne uruchomienie używa wątków wirtualnych z Javy 26.
+dwukierunkowy. Domyślne uruchomienie używa wątków wirtualnych oraz
+`StructuredTaskScope` z Javy 26.
 
 ## Wymagania
 
 - JDK 26, na przykład OpenJDK 26
 - Maven 3.9 lub nowszy, albo dołączony Gradle Wrapper
 - Powłoka POSIX dla `./gradlew` na Linux/macOS albo `gradlew.bat` na Windows
+
+Projekt korzysta z `StructuredTaskScope`, czyli preview API w JDK 26. Maven i
+Gradle mają już skonfigurowane `--enable-preview` dla kompilacji, uruchamiania
+i generowania Javadoca.
 
 Sprawdzenie wersji Javy:
 
@@ -45,7 +50,7 @@ Uruchomienie aplikacji:
 Uruchomienie zbudowanego pliku JAR:
 
 ```bash
-java -jar build/libs/1DMeshParallel-1.0-SNAPSHOT.jar
+java --enable-preview -jar build/libs/1DMeshParallel-1.0-SNAPSHOT.jar
 ```
 
 Na Windows użyj:
@@ -66,7 +71,7 @@ mvn clean package
 Uruchomienie zbudowanego pliku JAR:
 
 ```bash
-java -jar target/1DMeshParallel-1.0-SNAPSHOT.jar
+java --enable-preview -jar target/1DMeshParallel-1.0-SNAPSHOT.jar
 ```
 
 ## Javadoc
@@ -194,8 +199,9 @@ wykonuje je jako jeden blok.
 Dostępne implementacje:
 
 - `ConcurrentBlockRunner` uruchamia każdą produkcję na osobnym wątku
-  wirtualnym. `CountDownLatch` pozwala wystartować zadania po zgłoszeniu całego
-  bloku, a runner czeka na zakończenie wszystkich produkcji.
+  wirtualnym przez `StructuredTaskScope`. `CountDownLatch` pozwala wystartować
+  zadania po zgłoszeniu całego bloku, a strukturalny zakres zadań pilnuje, żeby
+  wszystkie podzadania zakończyły się przed wyjściem z metody.
 - `SerialBlockRunner` uruchamia produkcje po kolei w bieżącym wątku. Przydaje
   się do debugowania albo porównania przebiegu sekwencyjnego i współbieżnego.
 - `ConcurentBlockRunner` jest przestarzałym aliasem zachowanym dla zgodności ze
@@ -263,6 +269,13 @@ chmod +x gradlew
 
 Jeżeli kompilacja zgłasza błąd wersji Javy, sprawdź, czy `java` i `javac`
 pochodzą z JDK 26 oraz czy `JAVA_HOME` wskazuje tę samą instalację.
+
+Jeżeli uruchomienie pliku JAR zgłasza błąd dotyczący preview features, dodaj
+flagę `--enable-preview`:
+
+```bash
+java --enable-preview -jar target/1DMeshParallel-1.0-SNAPSHOT.jar
+```
 
 Jeżeli kolejność wypisywanych produkcji różni się między uruchomieniami, jest
 to oczekiwane dla produkcji wykonywanych współbieżnie w jednym bloku. W takim

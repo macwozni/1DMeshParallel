@@ -14,16 +14,24 @@ java {
 
 application {
     mainClass = 'pl.edu.agh.macwozni.dmeshparallel.Application'
+    applicationDefaultJvmArgs = ['--enable-preview']
 }
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
     options.release = 26
+    options.compilerArgs += '--enable-preview'
+}
+
+tasks.withType(Test).configureEach {
+    jvmArgs += '--enable-preview'
 }
 
 tasks.withType(Javadoc).configureEach {
     options.encoding = 'UTF-8'
     options.addBooleanOption('Xdoclint:all', true)
+    options.addBooleanOption('-enable-preview', true)
+    options.addStringOption('-release', '26')
 }
 
 tasks.named('jar') {

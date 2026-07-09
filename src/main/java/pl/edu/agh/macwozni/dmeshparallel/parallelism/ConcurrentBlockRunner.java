@@ -1,18 +1,17 @@
 package pl.edu.agh.macwozni.dmeshparallel.parallelism;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.concurrent.StructuredTaskScope;
 import pl.edu.agh.macwozni.dmeshparallel.production.IProduction;
 
 /**
- * Runs each production in a block on its own virtual thread.
+ * Runs each production in a block as a structured subtask on a virtual thread.
  *
  * <p>A latch is used so all tasks wait until the whole block has been submitted
- * before any production starts executing.</p>
+ * before any production starts executing. {@link StructuredTaskScope} then
+ * keeps all subtasks bound to this method call and handles failure
+ * propagation.</p>
  */
 public class ConcurrentBlockRunner extends AbstractBlockRunner {
 
@@ -28,26 +27,22 @@ public class ConcurrentBlockRunner extends AbstractBlockRunner {
     @Override
     protected void runNonEmptyBlock(List<IProduction<?>> productions) {
         var startGate = new CountDownLatch(1);
-        var futures = new ArrayList<Future<?>>(productions.size());
 
-        try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
+        try (var scope = StructuredTaskScope.open()) {
             for (var production : productions) {
-                futures.add(executor.submit(() -> {
+                scope.fork(() -> {
                     startGate.await();
                     production.run();
                     return null;
-                }));
+                });
             }
 
             startGate.countDown();
-
-            for (var future : futures) {
-                future.get();
-            }
+            scope.join();
         } catch (InterruptedException exception) {
             Thread.currentThread().interrupt();
             throw new IllegalStateException("Production block was interrupted", exception);
-        } catch (ExecutionException exception) {
+        } catch (StructuredTaskScope.FailedException exception) {
             throw new IllegalStateException("Production failed", exception.getCause());
         }
     }
