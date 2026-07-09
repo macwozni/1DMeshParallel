@@ -284,4 +284,6 @@ instead.
 
 ## Usage
 
+This project is intended for educational use during the "Teoria Wspolbieznosci"
+classes.
 For noncommercial use only.
