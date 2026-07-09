@@ -1,74 +1,75 @@
 # 1DMeshParallel
 
-`1DMeshParallel` to mały projekt dydaktyczny w Javie używany podczas zajęć z
-teorii śladów i współbieżnego wykonywania produkcji grafowych.
+`1DMeshParallel` is a small Java teaching project for trace theory classes and
+concurrent execution of graph productions.
 
-Program pokazuje, jak podzielić produkcje na bloki. Produkcje z jednego bloku
-mogą wykonać się równolegle, ale następny blok startuje dopiero wtedy, gdy
-wszystkie produkcje z poprzedniego bloku zakończą pracę.
+The program demonstrates how graph productions can be grouped into execution
+blocks. Productions from one block may run concurrently, but the next block
+starts only after every production from the previous block has finished.
 
-Przykład buduje jednowymiarową siatkę reprezentowaną jako mutowalny graf
-dwukierunkowy. Domyślne uruchomienie używa wątków wirtualnych oraz
-`StructuredTaskScope` z Javy 26.
+The example builds a one-dimensional mesh represented as a mutable doubly
+linked graph. The default execution uses Java 26 virtual threads and
+`StructuredTaskScope`.
 
-## Wymagania
+## Requirements
 
-- JDK 26, na przykład OpenJDK 26
-- Maven 3.9 lub nowszy, albo dołączony Gradle Wrapper
-- Powłoka POSIX dla `./gradlew` na Linux/macOS albo `gradlew.bat` na Windows
+- JDK 26, for example OpenJDK 26
+- Maven 3.9 or newer, or the included Gradle Wrapper
+- A POSIX shell for `./gradlew` on Linux/macOS, or `gradlew.bat` on Windows
 
-Projekt korzysta z `StructuredTaskScope`, czyli preview API w JDK 26. Maven i
-Gradle mają już skonfigurowane `--enable-preview` dla kompilacji, uruchamiania
-i generowania Javadoca.
+This project uses `StructuredTaskScope`, which is a preview API in JDK 26.
+Maven and Gradle are already configured with `--enable-preview` for
+compilation, execution, tests, and Javadoc generation.
 
-Sprawdzenie wersji Javy:
+Check the installed Java version:
 
 ```bash
 java -version
 javac -version
 ```
 
-Jeżeli Maven albo Gradle nie znajduje JDK 26, ustaw `JAVA_HOME` na katalog
-instalacji OpenJDK 26.
+If Maven or Gradle cannot find JDK 26, set `JAVA_HOME` to the OpenJDK 26
+installation directory.
 
-## Szybki Start Z Gradle
+## Quick Start With Gradle
 
-Gradle jest najwygodniejszą opcją, bo projekt zawiera wrapper.
+Gradle is the most convenient option because the repository includes the
+wrapper.
 
-Budowanie projektu:
+Build the project:
 
 ```bash
 ./gradlew clean build
 ```
 
-Uruchomienie aplikacji:
+Run the application:
 
 ```bash
 ./gradlew run
 ```
 
-Uruchomienie zbudowanego pliku JAR:
+Run the generated JAR:
 
 ```bash
 java --enable-preview -jar build/libs/1DMeshParallel-1.0-SNAPSHOT.jar
 ```
 
-Na Windows użyj:
+On Windows use:
 
 ```bat
 gradlew.bat clean build
 gradlew.bat run
 ```
 
-## Szybki Start Z Maven
+## Quick Start With Maven
 
-Budowanie projektu:
+Build the project:
 
 ```bash
 mvn clean package
 ```
 
-Uruchomienie zbudowanego pliku JAR:
+Run the generated JAR:
 
 ```bash
 java --enable-preview -jar target/1DMeshParallel-1.0-SNAPSHOT.jar
@@ -76,74 +77,73 @@ java --enable-preview -jar target/1DMeshParallel-1.0-SNAPSHOT.jar
 
 ## Javadoc
 
-Wygenerowanie Javadoca przez Gradle:
+Generate Javadoc with Gradle:
 
 ```bash
 ./gradlew javadoc
 ```
 
-Dokumentacja HTML powstaje w:
+Gradle writes the HTML documentation to:
 
 ```text
 build/docs/javadoc
 ```
 
-Pełny build Gradle tworzy też archiwum:
+A full Gradle build also creates:
 
 ```text
 build/libs/1DMeshParallel-1.0-SNAPSHOT-javadoc.jar
 ```
 
-Wygenerowanie Javadoca przez Maven:
+Generate Javadoc with Maven:
 
 ```bash
 mvn javadoc:javadoc
 ```
 
-Dokumentacja HTML powstaje w:
+Maven writes the HTML documentation to:
 
 ```text
 target/reports/apidocs
 ```
 
-Faza `package` w Maven tworzy też archiwum:
+The Maven `package` phase also creates:
 
 ```text
 target/1DMeshParallel-1.0-SNAPSHOT-javadoc.jar
 ```
 
-Obie konfiguracje mają włączone sprawdzanie `doclint`, więc błędny lub
-niekompletny Javadoc powinien zostać zgłoszony podczas generowania
-dokumentacji.
+Both build configurations enable `doclint`, so invalid or incomplete Javadoc
+should be reported while generating the documentation.
 
-## Co Robi Program
+## What The Program Does
 
-Program zaczyna od aksjomatu, czyli pojedynczego wierzchołka z etykietą `S`.
-Następnie wykonuje produkcje grafowe w blokach:
+The program starts from an axiom, represented by a single vertex labelled `S`.
+It then applies graph productions in blocks:
 
-1. `P1` tworzy początkową siatkę `T1--T1`.
-2. `P2` i `P3` wykonują się w jednym bloku i wstawiają wierzchołki `T2` obok
-   wierzchołków `T1`.
-3. `P5` i `P6` wykonują się w jednym bloku i zamieniają etykiety wierzchołków
-   na elementy skończone `|e1|` oraz `|e2|`.
+1. `P1` creates the initial mesh `T1--T1`.
+2. `P2` and `P3` run in one block and insert `T2` vertices next to the `T1`
+   vertices.
+3. `P5` and `P6` run in one block and relabel vertices as finite elements
+   `|e1|` and `|e2|`.
 
-Końcowa siatka:
+The final mesh is:
 
 ```text
 |e1|--|e2|--|e2|--|e1|
 ```
 
-W projekcie jest też produkcja `P4`, która wstawia kolejny wierzchołek `T2` za
-dopasowanym wierzchołkiem `T2`. Produkcja jest zaimplementowana, ale nie jest
-używana w domyślnym przebiegu klasy `Executor`.
+The project also contains `P4`, which inserts another `T2` vertex after a
+matched `T2` vertex. This production is implemented, but it is not used by the
+default execution flow in `Executor`.
 
-## Przykładowe Wyjście
+## Example Output
 
-Domyślny runner wykonuje produkcje w obrębie bloku współbieżnie, dlatego
-kolejność linii `p2`/`p3` oraz `p5`/`p6` może się różnić między
-uruchomieniami. Końcowa siatka powinna pozostać taka sama.
+The default runner executes productions inside a block concurrently, so the
+order of the `p2`/`p3` and `p5`/`p6` log lines may differ between runs. The
+final mesh should remain the same.
 
-Jedno z możliwych wyjść:
+One possible output is:
 
 ```text
 p1
@@ -164,72 +164,73 @@ done
 |e1|--|e2|--|e2|--|e1|
 ```
 
-## Struktura Projektu
+## Project Structure
 
 ```text
 .
-├── build.gradle
-├── gradlew
-├── gradlew.bat
-├── pom.xml
-├── settings.gradle
-└── src/main/java/pl/edu/agh/macwozni/dmeshparallel
-    ├── Application.java
-    ├── Executor.java
-    ├── mesh
-    ├── myProductions
-    ├── parallelism
-    └── production
+|-- build.gradle
+|-- gradlew
+|-- gradlew.bat
+|-- pom.xml
+|-- settings.gradle
+`-- src/main/java/pl/edu/agh/macwozni/dmeshparallel
+    |-- Application.java
+    |-- Executor.java
+    |-- mesh
+    |-- myProductions
+    |-- parallelism
+    `-- production
 ```
 
-Najważniejsze pakiety:
+Main packages:
 
-- `pl.edu.agh.macwozni.dmeshparallel` - punkt wejścia aplikacji i orkiestracja
-  przebiegu.
-- `mesh` - model mutowalnej siatki jednowymiarowej i wypisywanie grafu.
-- `myProductions` - konkretne produkcje grafowe `P1` do `P6`.
-- `parallelism` - strategie wykonywania bloków produkcji.
-- `production` - wspólne interfejsy i klasy bazowe dla produkcji.
+- `pl.edu.agh.macwozni.dmeshparallel` - application entry point and execution
+  orchestration.
+- `mesh` - mutable one-dimensional mesh model and graph printing.
+- `myProductions` - concrete graph productions `P1` through `P6`.
+- `parallelism` - strategies for executing production blocks.
+- `production` - shared production interfaces and base classes.
 
-## Model Wykonania
+## Execution Model
 
-Centralną abstrakcją jest `BlockRunner`. Dostaje listę niezależnych produkcji i
-wykonuje je jako jeden blok.
+The central abstraction is `BlockRunner`. It receives a list of independent
+productions and executes them as one block.
 
-Dostępne implementacje:
+Available implementations:
 
-- `ConcurrentBlockRunner` uruchamia każdą produkcję na osobnym wątku
-  wirtualnym przez `StructuredTaskScope`. `CountDownLatch` pozwala wystartować
-  zadania po zgłoszeniu całego bloku, a strukturalny zakres zadań pilnuje, żeby
-  wszystkie podzadania zakończyły się przed wyjściem z metody.
-- `SerialBlockRunner` uruchamia produkcje po kolei w bieżącym wątku. Przydaje
-  się do debugowania albo porównania przebiegu sekwencyjnego i współbieżnego.
-- `ConcurentBlockRunner` jest przestarzałym aliasem zachowanym dla zgodności ze
-  starą nazwą klasy z literówką.
+- `ConcurrentBlockRunner` runs each production on a virtual thread through
+  `StructuredTaskScope`. A `CountDownLatch` starts tasks after the entire block
+  has been submitted, and the structured task scope ensures that all subtasks
+  finish before the method exits.
+- `SerialBlockRunner` runs productions one after another on the current
+  thread. It is useful for debugging or comparing sequential and concurrent
+  execution.
+- `ConcurentBlockRunner` is a deprecated compatibility alias that preserves
+  the old misspelled class name.
 
-Mutacje grafu i wypisywanie siatki używają wspólnej blokady w klasie `Vertex`.
-Dzięki temu przykład jest bezpieczny współbieżnie, a kod pozostaje skupiony na
-harmonogramowaniu produkcji, nie na niskopoziomowej synchronizacji grafu.
+Graph mutations and graph printing use a shared lock in the `Vertex` class.
+This keeps the example safe for concurrent execution while keeping the code
+focused on production scheduling rather than low-level graph synchronization.
 
-## Przełączenie Na Wykonanie Sekwencyjne
+## Switching To Sequential Execution
 
-Domyślny punkt wejścia używa:
+The default entry point uses:
 
 ```java
 new Executor(new ConcurrentBlockRunner()).run();
 ```
 
-Żeby wykonywać bloki sekwencyjnie, w `Application` użyj:
+To execute blocks sequentially, change `Application` to use:
 
 ```java
 new Executor(new SerialBlockRunner()).run();
 ```
 
-i dodaj import `SerialBlockRunner`.
+and add the `SerialBlockRunner` import.
 
-## Artefakty Builda
+## Build Artifacts
 
-Gradle tworzy:
+Gradle creates:
 
 ```text
 build/libs/1DMeshParallel-1.0-SNAPSHOT.jar
@@ -237,7 +238,7 @@ build/libs/1DMeshParallel-1.0-SNAPSHOT-javadoc.jar
 build/docs/javadoc/
 ```
 
-Maven tworzy:
+Maven creates:
 
 ```text
 target/1DMeshParallel-1.0-SNAPSHOT.jar
@@ -245,42 +246,42 @@ target/1DMeshParallel-1.0-SNAPSHOT-javadoc.jar
 target/reports/apidocs/
 ```
 
-## Czyszczenie
+## Cleaning
 
-Usunięcie wyników Gradle:
+Remove Gradle outputs:
 
 ```bash
 ./gradlew clean
 ```
 
-Usunięcie wyników Maven:
+Remove Maven outputs:
 
 ```bash
 mvn clean
 ```
 
-## Rozwiązywanie Problemów
+## Troubleshooting
 
-Jeżeli `./gradlew` nie ma prawa wykonywania na Linux/macOS, uruchom:
+If `./gradlew` is not executable on Linux/macOS, run:
 
 ```bash
 chmod +x gradlew
 ```
 
-Jeżeli kompilacja zgłasza błąd wersji Javy, sprawdź, czy `java` i `javac`
-pochodzą z JDK 26 oraz czy `JAVA_HOME` wskazuje tę samą instalację.
+If compilation fails with a Java version error, check that both `java` and
+`javac` come from JDK 26 and that `JAVA_HOME` points to the same installation.
 
-Jeżeli uruchomienie pliku JAR zgłasza błąd dotyczący preview features, dodaj
-flagę `--enable-preview`:
+If running the JAR reports an error about preview features, add the
+`--enable-preview` flag:
 
 ```bash
 java --enable-preview -jar target/1DMeshParallel-1.0-SNAPSHOT.jar
 ```
 
-Jeżeli kolejność wypisywanych produkcji różni się między uruchomieniami, jest
-to oczekiwane dla produkcji wykonywanych współbieżnie w jednym bloku. W takim
-przypadku sprawdź końcową linię z siatką.
+If the printed production order differs between runs, this is expected for
+productions executed concurrently inside one block. Check the final mesh line
+instead.
 
-## Użycie
+## Usage
 
-Tylko do użytku niekomercyjnego.
+For noncommercial use only.
